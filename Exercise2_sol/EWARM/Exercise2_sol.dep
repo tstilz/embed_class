@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<project>
+  <fileVersion>2</fileVersion>
+  <fileChecksum>532383443</fileChecksum>
+  <configuration>
+    <name>STM32746G_DISCOVERY</name>
+    <outputs>
+      <file>$PROJ_DIR$\STM32746G_DISCOVERY\Obj\stm32f7xx_it.pbi</file>
+      <file>$PROJ_DIR$\STM32746G_DISCOVERY\Obj\system_stm32f7xx.pbi</file>
+      <file>$PROJ_DIR$\STM32746G_DISCOVERY\Obj\Exercise2_sol.pbd</file>
+      <file>$PROJ_DIR$\STM32746G_DISCOVERY\Obj\bsp.pbi</file>
+      <file>$PROJ_DIR$\STM32746G_DISCOVERY\Obj\main.pbi</file>
+      <file>$PROJ_DIR$\STM32746G_DISCOVERY\Obj\pot.pbi</file>
+      <file>$PROJ_DIR$\STM32746G_DISCOVERY\Obj\setup.pbi</file>
+      <file>$PROJ_DIR$\STM32746G_DISCOVERY\Obj\bsp.o</file>
+      <file>$PROJ_DIR$\..\Src\setup.h</file>
+      <file>$PROJ_DIR$\STM32746G_DISCOVERY\List\Project.map</file>
+      <file>$PROJ_DIR$\..\Src\project.h</file>
+      <file>$PROJ_DIR$\..\Src\stm32f7xx_it.h</file>
+      <file>$PROJ_DIR$\..\Src\hw.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Defaults.h</file>
+      <file>$PROJ_DIR$\..\Src\pot.h</file>
+      <file>$PROJ_DIR$\STM32746G_DISCOVERY\Obj\main.o</file>
+      <file>$PROJ_DIR$\..\Src\main.c</file>
+      <file>$PROJ_DIR$\..\Src\pot.c</file>
+      <file>$PROJ_DIR$\STM32746G_DISCOVERY\Obj\bsp.__cstat.et</file>
+      <file>$PROJ_DIR$\..\Src\stm32f7xx_it.c</file>
+      <file>$PROJ_DIR$\..\Src\setup.c</file>
+      <file>$PROJ_DIR$\startup_stm32f746xx.s</file>
+      <file>$PROJ_DIR$\..\Src\bsp.c</file>
+      <file>$PROJ_DIR$\..\Src\system_stm32f7xx.c</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Product.h</file>
+      <file>$PROJ_DIR$\STM32746G_DISCOVERY\Exe\Project.out</file>
+      <file>$PROJ_DIR$\..\Src\bsp.h</file>
+      <file>$PROJ_DIR$\stm32f746xx_flash.icf</file>
+      <file>$PROJ_DIR$\STM32746G_DISCOVERY\Obj\system_stm32f7xx.__cstat.et</file>
+      <file>$PROJ_DIR$\STM32746G_DISCOVERY\Obj\startup_stm32f746xx.o</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Config_Full.h</file>
+      <file>$PROJ_DIR$\STM32746G_DISCOVERY\Obj\setup.__cstat.et</file>
+      <file>$PROJ_DIR$\STM32746G_DISCOVERY\Obj\pot.__cstat.et</file>
+      <file>$TOOLKIT_DIR$\lib\m7M_tls.a</file>
+      <file>$PROJ_DIR$\STM32746G_DISCOVERY\Obj\stm32f7xx_it.o</file>
+      <file>$TOOLKIT_DIR$\lib\rt7M_tl.a</file>
+      <file>$PROJ_DIR$\STM32746G_DISCOVERY\Obj\setup.o</file>
+      <file>$PROJ_DIR$\STM32746G_DISCOVERY\Obj\stm32f7xx_it.__cstat.et</file>
+      <file>$TOOLKIT_DIR$\inc\c\intrinsics.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Threads.h</file>
+      <file>$TOOLKIT_DIR$\lib\dl7M_tln.a</file>
+      <file>$TOOLKIT_DIR$\inc\c\stdint.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\ycheck.h</file>
+      <file>$PROJ_DIR$\STM32746G_DISCOVERY\Obj\system_stm32f7xx.o</file>
+      <file>$PROJ_DIR$\STM32746G_DISCOVERY\Exe\STM32746G_DISCOVERY.hex</file>
+      <file>$TOOLKIT_DIR$\lib\shb_l.a</file>
+      <file>$PROJ_DIR$\STM32746G_DISCOVERY\Obj\main.__cstat.et</file>
+      <file>$TOOLKIT_DIR$\inc\c\xencoding_limits.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\yvals.h</file>
+      <file>$PROJ_DIR$\STM32746G_DISCOVERY\Obj\pot.o</file>
+      <file>$PROJ_DIR$\..\..\Exercise2\Src\hw.h</file>
+      <file>$PROJ_DIR$\..\..\Exercise2\Src\main.c</file>
+      <file>$PROJ_DIR$\..\..\Exercise2\Src\pot.h</file>
+      <file>$PROJ_DIR$\..\..\Exercise2\Src\pot.c</file>
+    </outputs>
+    <file>
+      <name>$PROJ_DIR$\..\Src\main.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 4</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 15</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 46</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 48 41 47 39 38 42 13 10 30 24 26 12 8 14</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 10 41 42 48 13 30 24 47 39 38 26 12 8 14</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Src\pot.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 5</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 49</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 32</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 42 26 41 48 24 12 14 38 30 10 13 47 39</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 10 41 42 48 13 30 24 47 39 38 12 26 14</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Src\stm32f7xx_it.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 0</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 34</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 37</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 48 41 47 39 38 42 13 10 30 24 8 11</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 10 41 42 48 13 30 24 47 39 38 8 11</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Src\setup.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 6</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 36</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 31</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 47 39 8 48 12 41 42 13 10 38 30 24</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 10 41 42 48 13 30 24 47 39 38 12 8</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\startup_stm32f746xx.s</name>
+      <outputs>
+        <tool>
+          <name>AARM</name>
+          <file> 29</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Src\bsp.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 3</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 7</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 18</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 39 47 48 26 41 42 13 12 38 30 24 10</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 10 41 42 48 13 30 24 47 39 38 12 26</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Src\system_stm32f7xx.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 1</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 43</file>
+        </tool>
+        <tool>
+          <name>__cstat</name>
+          <file> 28</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 48 41 47 39 38 42 13 10 30 24 12</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 10 41 42 48 13 30 24 47 39 38 12</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\STM32746G_DISCOVERY\Exe\Project.out</name>
+      <outputs>
+        <tool>
+          <name>OBJCOPY</name>
+          <file> 44</file>
+        </tool>
+        <tool>
+          <name>ILINK</name>
+          <file> 9</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ILINK</name>
+          <file> 27 7 15 49 36 29 34 43 45 35 33 40</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>[ROOT_NODE]</name>
+      <outputs>
+        <tool>
+          <name>ILINK</name>
+          <file> 25 9</file>
+        </tool>
+      </outputs>
+    </file>
+  </configuration>
+</project>
+
+

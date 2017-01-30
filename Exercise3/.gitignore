@@ -1,0 +1,6 @@
+settings/*
+*.o
+*.xcl
+*.pbi
+EWARM/settings/*
+EWARM/STM32746G_DISCOVERY/*

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+  <project>
+    <path>$WS_DIR$\Exercise0\EWARM\Exercise0.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Exercise1\EWARM\Exercise1.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Exercise2\EWARM\Exercise2.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Exercise2_sol\EWARM\Exercise2_sol.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Exercise3\EWARM\Exercise3.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Exercise5\AppCode\iar-no-src\Exercise5.ewp</path>
+  </project>
+  <batchBuild/>
+</workspace>
+
+
