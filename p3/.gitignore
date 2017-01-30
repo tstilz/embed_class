@@ -4,3 +4,4 @@ settings/*
 *.pbi
 EWARM/settings/*
 EWARM/STM32746G_DISCOVERY/*
+*.dep

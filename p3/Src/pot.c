@@ -24,14 +24,14 @@ typedef struct
     const uint32_t JEOC  : 1;
     const uint32_t JSTRT : 1;
     const uint32_t STRT  : 1;
-    const uint32_t OVR   : 1;
+          uint32_t OVR   : 1;
 } adc_SR_t;
 
 
 typedef struct
 {
     const uint32_t AWDCH   : 5;
-    const uint32_t EOCIE   : 1;
+          uint32_t EOCIE   : 1;
     const uint32_t AWDIE   : 1;
     const uint32_t JEOCIE  : 1;
           uint32_t SCAN    : 1;
@@ -45,7 +45,7 @@ typedef struct
     const uint32_t JAWDEN  : 1;
     const uint32_t AWDEN   : 1;
           uint32_t RES     : 2;
-    const uint32_t OVRIE   : 1;
+          uint32_t OVRIE   : 1;
 } adc_CR1_t;
 
 typedef struct
@@ -55,7 +55,7 @@ typedef struct
     const uint32_t _unused0 : 6;
     const uint32_t DMA      : 1;
           uint32_t DDS      : 1;
-    const uint32_t EOCS     : 1;
+          uint32_t EOCS     : 1;
           uint32_t ALIGN    : 1;
     const uint32_t _unused1 : 4;
     const uint32_t JEXTSEL  : 4;
@@ -132,8 +132,8 @@ typedef struct
     const uint32_t    LTR;    // offset: 0x28
           adc_SQR1_t  SQR1;   // offset: 0x2C
     const uint32_t    SQR2;   // offset: 0x30
-          // adc_SQR3_t  SQR3;   // offset: 0x34
-          uint32_t    SQR3;   // offset: 0x34
+          adc_SQR3_t  SQR3;   // offset: 0x34
+          // uint32_t    SQR3;   // offset: 0x34
     const uint32_t    JSQR;   // offset: 0x38
     const uint32_t    JDR1;   // offset: 0x3C
     const uint32_t    JDR2;   // offset: 0x40
@@ -225,30 +225,22 @@ static void pot_init_pt1(void)
   ADC_Hardware_Config();
 
   // ADC Clock prescaler - PCLK2 divided by 4
-  // ADC_COMMON.CCR &= ~(0x30000UL);
-  // ADC_COMMON.CCR |=  (0x10000UL);
   ADC_COMMON.CCR.ADCPRE = 0x01;
 
   // ADC Scan Mode - disabled
-  // ADC3.CR1 &= ~(0x100UL);
   ADC3.CR1.SCAN = 0x0U;
 
   // ADC Resolution - 12 bits
-  // ADC3.CR1 &= ~(0x03000000UL);
   ADC3.CR1.SCAN = 0x00U;
 
   // ADC Data Alignment  - right-aligned
-  // ADC3.CR2 &= ~(1UL << 11UL);
   ADC3.CR2.ALIGN = 0x0U;
 
   // External trigger conversion start - disabled
   ADC3.CR2.EXTEN = 0x0;
 
-  // External trigger polarity setting - N/A
-  // ADC3.CR2 &= ~(0x30000000UL);
-
   // Disable ADC Continuous Conversion Mode
-  ADC3.CR2.CONT = 0x0;
+  ADC3.CR2.CONT = 0x1;
 
   // Disable ADC regular discontinuous mode
   ADC3.CR1.DISCEN = 0x0;
@@ -260,58 +252,17 @@ static void pot_init_pt1(void)
   ADC3.CR2.DDS = 0x0;
 
   // ADC End of Conversion (EOC) selection
-  // EOC bit is set at the end of each sequence of regular conversions.
-  ADC3.SR.EOC = 0;
-
-  /*
-  // Configure ADC pin hardware and interrupts
-  ADC_Hardware_Config();
-
-  uint32_t read_reg = ADCC->ADC_CCR.ADCPRE;
-  // TODO: ADC CCR
-  // ADC Clock prescaler - PCLK2 divided by 4
-  ADCC->ADC_CCR.ADCPRE = 0x01; // Prescaler set to 0x01 page 453
-  read_reg = ADCC->ADC_CCR.ADCPRE;
-
-  // TODO: ADC Scan Mode - disabled
-  ADC3->ADC_CR1.SCAN = 0x01; // Prescaler set to 0x01 page 453
-
-  // TODO: ADC Resolution - 12 bits
-  ADC3->ADC_CR1.RES = 0x00; // Resolution set to 12 bits -  page 441
-
-  // TODO: ADC Data Alignment  - right-aligned
-  ADC3->ADC_CR2.ALIGN = 0x00; // right-align is 0x0 - page 444
-
-  // TODO: External trigger conversion start - disabled
-  ADC3->ADC_CR2.ALIGN = 0x00; // disabled is 0x0 - page 444
-
-  // TODO: External trigger polarity setting - N/A (just clear it)
-
-  // TODO: Disable ADC Continuous Conversion Mode
-
-  // TODO: Disable ADC regular discontinuous mode
-
-  // TODO: Set number of conversions (1)
-
-  // TODO: DMA Continuous requests - disabled
-
-  // TODO: ADC End of Conversion (EOC) selection (clear)
-  */
+  ADC3.CR2.EOCS = 0;
 }
 
 // *******************************************************************
 static void pot_init_pt2(void)
 {
   // TODO: Set ADC sample time to 3 cycles
-    // Set sample time to 3 cycles
-  ADC3.SMPR2.SMP8 = 0;
+  ADC3.SMPR2.SMP8 = 0x7;
 
   // TODO: Set ADC_SQR3 bits for Rank 1
-
-  // Set ADC_SQR3 bits for Rank 1
-  //ADC3.SQR3.SQ1 = 0x8;
-  ADC3.SQR3 &= ~(0x1FUL << 0UL);
-  ADC3.SQR3 |=  (0x08UL << 0UL);
+  ADC3.SQR3.SQ1 = 0x8;
 }
 
 // *******************************************************************
@@ -335,6 +286,16 @@ static void pot_init_pt3(void)
 
   // Sanity check: ensure ADC is enabled
   my_assert(ADC3.CR2.ADON == 1);
+
+  ADC3.SR.EOC    = 0x0;
+  ADC3.SR.OVR    = 0x0;
+  // Enable Interrup for ADC peripheral
+  ADC3.CR1.EOCIE = 0x1;
+  ADC3.CR1.OVRIE = 0x1;
+
+  // Start the conversion!
+  ADC3.CR2.SWSTART = 1;
+
 }
 
 // *******************************************************************
@@ -363,25 +324,14 @@ uint16_t pot_read(void)
 {
   uint16_t retval;
 
-  // Sanity check.  There should be no pending "conversion completed".
-  my_assert(0 == (ADC3.SR.EOC));
-
-  // Start the conversion!
-  ADC3.CR2.SWSTART = 1;
-
-  // Wait for conversion to complete
-  while (0 == (ADC3.SR.EOC))
-  {
-    // Wait for EOC bit to become set
-  }
-
   // Clear EOC status register flag
   ADC3.SR.EOC = 0;
 
   // Read ADC channel's value in converted Data Register
   retval = ADC3.DR.DATA;
 
-  // Reduce the range from 12-bit (0 to 4,095) to 10-bit (0 to 1,023).
-  return (retval >> 2);
+  // Reduce the range from 12-bit (0 to 4,095) to 8-bit (0 to 255).
+  return (retval >> 4);
 }
+
 

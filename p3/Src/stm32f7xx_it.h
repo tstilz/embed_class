@@ -3,7 +3,7 @@
   * @file    stm32f7xx_it.h
   * @author  MCD Application Team
   * @version V1.0.3
-  * @date    22-April-2016 
+  * @date    22-April-2016
   * @brief   This file contains the headers of the interrupt handlers.
   ******************************************************************************
   * @attention
@@ -49,6 +49,7 @@ extern "C" {
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 
+void ADC_IRQHandler(void);
 void NMI_Handler(void);
 void HardFault_Handler(void);
 void MemManage_Handler(void);

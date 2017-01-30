@@ -3,7 +3,7 @@
   * @file    stm32f7xx_it.c
   * @author  MCD Application Team
   * @version V1.0.3
-  * @date    22-April-2016 
+  * @date    22-April-2016
   * @brief   Main Interrupt Service Routines.
   *          This file provides template for all exceptions handler and
   *          peripherals interrupt service routine.
@@ -41,11 +41,26 @@
 #include "project.h"
 #include "setup.h"          // for Systick_IncTick()
 #include "stm32f7xx_it.h"   // For system exceptions
+#include "pot.h"   // For system exceptions
 
 
 /******************************************************************************/
 /*            Cortex-M7 Processor Exceptions Handlers                         */
 /******************************************************************************/
+
+
+/**
+  * @brief   This function handles ADC exception.
+  * @param  None
+  * @retval None
+  */
+void ADC_IRQHandler(void)
+{
+    uint16_t raw_read = pot_read();
+    curr_pot_read = (raw_read & 0x000000FF);
+}
+
+
 
 /**
   * @brief   This function handles NMI exception.
