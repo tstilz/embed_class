@@ -86,7 +86,7 @@ void  BSP_Init (void)
 
     // ----------------- INIT TOUCH SCREEN ----------------
     // Initialize the LCD's Touch Capabilities.
-    BSP_Touch_Init();
+    //BSP_Touch_Init();
 #endif
 
   BSP_LED_Init();            // LEDs

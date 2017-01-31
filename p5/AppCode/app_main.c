@@ -58,10 +58,12 @@
 
 
 // Task priorities
-#define TASK_LED1_PRIO       (14UL)
+#define TASK_STARTUP_PRIO   (20UL)
+#define TASK_LED_PRIO       (14UL)
 
 // Task stack size(s)
-#define TASK_LED_STK_SIZE    (192UL)
+#define TASK_LED_STK_SIZE     (192UL)
+#define TASK_STARTUP_STK_SIZE (192UL)
 
 
 // *****************************************************************
@@ -70,30 +72,101 @@
 static  OS_TCB   AppTaskGUI_TCB;
 static  CPU_STK  AppTaskGUI_Stk[APP_CFG_TASK_GUI_STK_SIZE];
 
-static  OS_TCB   TaskLED1_TCB;
-static  CPU_STK  TaskLED1_Stk[TASK_LED_STK_SIZE];
+static  OS_TCB   StartupTask_TCB;
+static  CPU_STK  StartupTask_Stk[TASK_LED_STK_SIZE];
+
+static  OS_TCB   TaskLED_TCB[3];
+static  CPU_STK  TaskLED_Stk[3][TASK_LED_STK_SIZE];
+static  OS_MUTEX Led_Mutex;
+
+// static  OS_ERR   err;
+
+typedef struct
+{
+    uint8_t    LED;
+    uint16_t   period_ms;
+    OS_MUTEX * p_Led_Mutex
+
+} LED_Task_arg;
+
+// Flash LED1 at 1 Hz (500ms on / 500ms off)
+// Flash LED1 at 5 Hz (100ms on / 100ms off)
+// *****************************************************************
+static void led_task(void * p_arg)
+{
+    LED_Task_arg * p_LED_Task_arg = (LED_Task_arg *) p_arg;
+    OS_ERR  err;
+    CPU_TS  ts;
+    for (;;)
+    {
+
+        OSMutexPend((OS_MUTEX *) p_LED_Task_arg->p_Led_Mutex,
+                    (OS_TICK   ) 0,
+                    (OS_OPT    ) OS_OPT_PEND_BLOCKING,
+                    (CPU_TS   *) &ts,
+                    (OS_ERR   *) &err);
+        my_assert(OS_ERR_NONE == err);
+
+        BSP_LED_Toggle(p_LED_Task_arg->LED);
+
+        OSMutexPost((OS_MUTEX *) p_LED_Task_arg->p_Led_Mutex,
+                    (OS_OPT    ) OS_OPT_POST_NONE,
+                    (OS_ERR   *) &err);
+        my_assert(OS_ERR_NONE == err);
+
+        OSTimeDlyHMSM(0,0,0, p_LED_Task_arg->period_ms, OS_OPT_TASK_NONE, &err);
+        my_assert(OS_ERR_NONE == err);
+    }
+}
 
 // Flash LED1 at 1 Hz (500ms on / 500ms off)
 // *****************************************************************
-static void led1_task(void * p_arg)
+static void startup_task(void * p_arg)
 {
+    OS_ERR  err;
+    BSP_Init();
 
-#if OS_CFG_STAT_TASK_EN > 0u
-    // Compute CPU capacity with no other task running
-    OSStatTaskCPUUsageInit(&err);
-#endif
+    LED_Task_arg LED_Task_arg[3];
 
-#ifdef CPU_CFG_INT_DIS_MEAS_EN
-    CPU_IntDisMeasMaxCurReset();
-#endif
+    LED_Task_arg[0].LED         = LED1;
+    LED_Task_arg[0].period_ms   = 500;
+    LED_Task_arg[0].p_Led_Mutex = &Led_Mutex;
+
+    LED_Task_arg[1].LED         = LED2;
+    LED_Task_arg[1].period_ms   = 100;
+    LED_Task_arg[1].p_Led_Mutex = &Led_Mutex;
+
+    OSMutexCreate (&Led_Mutex,
+                   "LED_MUTEX",
+                   &err);
+    my_assert(OS_ERR_NONE == err);
+
+    // Create the BLINKY task
+    for(int i=0; i<2; i++)
+    {
+        OSTaskCreate(&TaskLED_TCB[i],
+                     "Blinky Task",
+                     (OS_TASK_PTR ) led_task,
+                     &LED_Task_arg[i],
+                     TASK_LED_PRIO + i,
+                     &TaskLED_Stk[i][0],
+                     (TASK_LED_STK_SIZE / 10u),
+                     TASK_LED_STK_SIZE,
+                     0u,
+                     0u,
+                     0,
+                     (OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR),
+                     &err);
+        my_assert(OS_ERR_NONE == err);
+    }
 
     for (;;)
     {
         // TODO: Toggle LED1
-
-        // TODO: Sleep for 500ms
     }
 }
+
+
 
 // *****************************************************************
 int main(void)
@@ -109,17 +182,47 @@ int main(void)
 
     // TODO: Init uC/OS-III.
 
-    // Create the GUI task
-    OSTaskCreate(&AppTaskGUI_TCB, "uC/GUI Task", (OS_TASK_PTR ) GUI_DemoTask,
-                 0, APP_CFG_TASK_GUI_PRIO,
-                 &AppTaskGUI_Stk[0], (APP_CFG_TASK_GUI_STK_SIZE / 10u),
-                  APP_CFG_TASK_GUI_STK_SIZE, 0u, 0u, 0,
-                  (OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), &err);
+    BSP_LED_Toggle(LED1);
+
+    OSInit(&err);
     my_assert(OS_ERR_NONE == err);
- 
+
+    // Create the GUI task
+    OSTaskCreate(&AppTaskGUI_TCB,
+                 "uC/GUI Task",
+                 (OS_TASK_PTR ) GUI_DemoTask,
+                 0,
+                 APP_CFG_TASK_GUI_PRIO,
+                 &AppTaskGUI_Stk[0],
+                 (APP_CFG_TASK_GUI_STK_SIZE / 10u),
+                 APP_CFG_TASK_GUI_STK_SIZE,
+                 0u,
+                 0u,
+                 0,
+                 (OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR),
+                 &err
+            );
+    my_assert(OS_ERR_NONE == err);
+
     // TODO: Create task to blink LED1
+    // Create the BLINKY task
+    OSTaskCreate(&StartupTask_TCB,
+                 "Startup",
+                 (OS_TASK_PTR ) startup_task,
+                 0,
+                 TASK_STARTUP_PRIO,
+                 StartupTask_Stk,
+                 (TASK_STARTUP_STK_SIZE / 10u),
+                 TASK_STARTUP_STK_SIZE,
+                 0u,
+                 0u,
+                 0,
+                 (OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR),
+                 &err);
+    my_assert(OS_ERR_NONE == err);
 
     // TODO: Start multitasking (i.e. give control to uC/OS-III)
-
+    OSStart(&err);
+    my_assert(OS_ERR_NONE == err);
 }
 
