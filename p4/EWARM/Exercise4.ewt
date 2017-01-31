@@ -1170,6 +1170,12 @@
       <name>$PROJ_DIR$\..\Src\bsp.c</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\..\Src\bsp.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Src\hw.h</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\Src\main.c</name>
     </file>
     <file>
@@ -1179,13 +1185,34 @@
       <name>$PROJ_DIR$\..\Src\pot.h</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\..\Src\project.h</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Src\ringbuff.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Src\ringbuff.h</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\Src\setup.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Src\setup.h</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\Src\stm32f7xx_it.c</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\..\Src\stm32f7xx_it.h</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\Src\system_stm32f7xx.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Src\uart.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\Src\uart.h</name>
     </file>
   </group>
 </project>

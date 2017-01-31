@@ -17,6 +17,9 @@
     <path>$WS_DIR$\p3\EWARM\Exercise3.ewp</path>
   </project>
   <project>
+    <path>$WS_DIR$\p4\EWARM\Exercise4.ewp</path>
+  </project>
+  <project>
     <path>$WS_DIR$\p5\AppCode\iar-no-src\Exercise5.ewp</path>
   </project>
   <batchBuild/>

@@ -29,11 +29,17 @@ int main(void)
   BSP_Init();
 
   // Init ADC3
-  pot_init();
 
+  pot_init();
+  __asm(" CPSIE i"); // enable interrupt for ARM
+  
   // Set the output pattern - 1Hz (500ms on / 500ms off).
   uint16_t delay = 500UL;
   BSP_LED_Off(LED2);
+  
+  //__asm(" CPSID i"); // enable interrupt for ARM
+  //busywait_ms(5UL);
+  
   for (;;)
   {
     /* Disable interrupts */

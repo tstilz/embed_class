@@ -293,6 +293,7 @@ static void pot_init_pt3(void)
   ADC3.CR1.EOCIE = 0x1;
   ADC3.CR1.OVRIE = 0x1;
 
+  //__asm(" CPSID i"); // enable interrupt for ARM
   // Start the conversion!
   ADC3.CR2.SWSTART = 1;
 

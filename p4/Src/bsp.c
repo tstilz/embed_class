@@ -27,6 +27,7 @@
 
 // Macros to enable clock for specific GPIO ports
 #define GPIOA_CLK_ENABLE()   GPIO_CLK_ENABLE(1UL << 0UL)
+#define GPIOC_CLK_ENABLE()   GPIO_CLK_ENABLE(1UL << 2UL)
 #define GPIOF_CLK_ENABLE()   GPIO_CLK_ENABLE(1UL << 5UL)
 #define GPIOI_CLK_ENABLE()   GPIO_CLK_ENABLE(1UL << 8UL)
 
@@ -37,6 +38,12 @@
 // LED 2 - GPIO PA.0
 #define LED2_GPIO_PORT_CLK_ENABLE()      GPIOA_CLK_ENABLE()
 #define LED_2_PIN   (0UL)   // PA.0
+
+// Push Buttons (PB)
+// PB1 - GPIO PI.11
+#define PB1_GPIO_PORT_CLK_ENABLE()   GPIOI_CLK_ENABLE()
+#define PB1_PIN               (11UL)  // PI.11
+#define PB1_GPIO_PORT         (GPIO_PORT_I_BASE_ADDR)
 
 // Test Outputs - PF.6 through PF.9
 #define TESTOUT_GPIO_PORT_CLK_ENABLE()   GPIOF_CLK_ENABLE()
@@ -50,6 +57,7 @@
 
 // Base addresses of memory-mapped GPIO port peripherals
 #define  GPIO_PORT_A_BASE_ADDR    (0x40020000UL)
+#define  GPIO_PORT_C_BASE_ADDR    (0x40020800UL)
 #define  GPIO_PORT_F_BASE_ADDR    (0x40021400UL)
 #define  GPIO_PORT_I_BASE_ADDR    (0x40022000UL)
 
@@ -58,20 +66,25 @@
 #define GPIO_OTYPER_OFFSET (0x04UL)
 #define GPIO_SPEEDR_OFFSET (0x08UL)
 #define GPIO_PUPDR_OFFSET  (0x0CUL)
+#define GPIO_IDR_OFFSET    (0x10UL)
 #define GPIO_ODR_OFFSET    (0x14UL)
 #define GPIO_BSRR_OFFSET   (0x18UL)
+#define GPIO_AFRL_OFFSET   (0x20UL)
 
 // GPIO port register addresses
 #define GPIO_MODER(Port)   ((Port) + GPIO_MODER_OFFSET)
 #define GPIO_OTYPER(Port)  ((Port) + GPIO_OTYPER_OFFSET)
 #define GPIO_SPEEDR(Port)  ((Port) + GPIO_SPEEDR_OFFSET)
 #define GPIO_PUPDR(Port)   ((Port) + GPIO_PUPDR_OFFSET)
+#define GPIO_IDR(Port)     ((Port) + GPIO_IDR_OFFSET)
 #define GPIO_ODR(Port)     ((Port) + GPIO_ODR_OFFSET)
 #define GPIO_BSRR(Port)    ((Port) + GPIO_BSRR_OFFSET)
+#define GPIO_AFRL(Port)    ((Port) + GPIO_AFRL_OFFSET)
 
 // Function prototypes for local (hidden) functions
 static void BSP_LED_Init(BOARD_LED_ID Led);
 static void BSP_Test_Outputs_Init(void);
+static void BSP_PB_Init(void);
 
 // **********************************************************
 /*!
@@ -79,9 +92,10 @@ static void BSP_Test_Outputs_Init(void);
 */
 void BSP_Init(void)
 {
-  BSP_LED_Init(LED1);
-  BSP_LED_Init(LED2);
-  BSP_Test_Outputs_Init();
+  BSP_PB_Init();             // Pushbutton
+  BSP_LED_Init(LED1);        // LED1
+  BSP_LED_Init(LED2);        // LED2
+  BSP_Test_Outputs_Init();   // Test point outputs
 }
 
 // **********************************************************
@@ -94,12 +108,7 @@ static void BG_GPIO_WritePin(uint32_t PortBaseAddr, uint32_t Pin, uint32_t Val)
 {
   my_assert(PortBaseAddr >= 0x40020000UL);
   my_assert(PortBaseAddr < 0x40023000UL);
-  my_assert(Pin <= 31);
-  my_assert(Val <= 1);
-  if ((PortBaseAddr < 0x40020000UL) || (PortBaseAddr >= 0x40023000UL)) { while (1); }
-  if (Pin > 31) { while (1) ; }
-  if (Val > 1) { while (1) ; }
-
+  my_assert(Pin <= 15);
   Pin += (Val ? 0 : 16UL);  // Reset bits are upper 16 bits of register
   REG32(GPIO_BSRR(PortBaseAddr)) = (1UL << Pin); // Set or reset pin!
 }
@@ -114,9 +123,7 @@ static void BG_GPIO_TogglePin(uint32_t PortBaseAddr, uint32_t Pin)
 {
   my_assert(PortBaseAddr >= 0x40020000UL);
   my_assert(PortBaseAddr < 0x40023000UL);
-  my_assert(Pin <= 31);
-  if ((PortBaseAddr < 0x40020000UL) || (PortBaseAddr >= 0x40023000UL)) { while (1); }
-  if (Pin > 31) { while (1) ; }
+  my_assert(Pin <= 15);
   REG32(GPIO_ODR(PortBaseAddr)) ^= (1UL << Pin); // Toggle Pin x
 }
 
@@ -131,8 +138,9 @@ static void BG_GPIO_Init_Output(uint32_t PortBaseAddr, uint32_t Pin)
   volatile uint32_t temp;
 
   // Param checking
-  if ((PortBaseAddr < 0x40020000UL) || (PortBaseAddr >= 0x40023000UL)) { while (1); }
-  if (Pin > 31) { while (1) ; }
+  my_assert(PortBaseAddr >= 0x40020000UL);
+  my_assert(PortBaseAddr < 0x40023000UL);
+  my_assert(Pin <= 15);
 
   const uint32_t ThePin = Pin;
 
@@ -164,6 +172,43 @@ static void BG_GPIO_Init_Output(uint32_t PortBaseAddr, uint32_t Pin)
 
 // **********************************************************
 /*!
+* @brief Initialize a GPIO port's pin as an input.
+* @param[in] PortBaseAddr  GPIO port base address
+* @param[in] Pin  The pin number (0-15) to configure
+*/
+static void BG_GPIO_Init_Input(uint32_t PortBaseAddr, uint32_t Pin)
+{
+  volatile uint32_t temp;
+
+  // Param checking
+  my_assert(PortBaseAddr >= 0x40020000UL);
+  my_assert(PortBaseAddr < 0x40023000UL);
+  my_assert(Pin <= 15);
+
+  const uint32_t ThePin = Pin;
+
+  // Configure GPIO as Input Pin
+  temp  = REG32(GPIO_MODER(PortBaseAddr));
+  temp &= ~(0x03UL << (ThePin * 2UL));
+  temp |= (0x00UL << (ThePin * 2UL));  // input
+  REG32(GPIO_MODER(PortBaseAddr)) = temp;
+
+  // Pin speed
+  temp  = REG32(GPIO_SPEEDR(PortBaseAddr));
+  temp &= ~(0x03UL << (ThePin * 2UL));
+  temp |= (0x02UL << (ThePin * 2UL));  // High Speed
+  REG32(GPIO_SPEEDR(PortBaseAddr)) = temp;
+
+  // Pull Up / Pull Down 
+  temp  = REG32(GPIO_PUPDR(PortBaseAddr));
+  temp &= ~(0x03UL << (ThePin * 2UL));
+  temp |= (0x00UL << (ThePin * 2UL));  // No Pull Up or Pull Down
+  REG32(GPIO_PUPDR(PortBaseAddr)) = temp;
+
+}
+
+// **********************************************************
+/*!
 * @brief Configure GPIO PF.10 as ADC input channel for potentiometer .
 */
 void BSP_AdcPin_init(void)
@@ -171,10 +216,6 @@ void BSP_AdcPin_init(void)
   volatile uint32_t temp;
   const uint32_t PortBaseAddr = GPIO_PORT_F_BASE_ADDR;
   const uint32_t Pin = 10UL;
-
-  // Param checking
-  if ((PortBaseAddr < 0x40020000UL) || (PortBaseAddr >= 0x40023000UL)) { while (1); }
-  if (Pin > 31) { while (1) ; }
 
   const uint32_t ThePin = Pin;
 
@@ -190,6 +231,102 @@ void BSP_AdcPin_init(void)
   temp |= (0x00UL << (ThePin * 2UL));  // No Pull Up or Pull Down
   REG32(GPIO_PUPDR(PortBaseAddr)) = temp;
 
+}
+
+// **********************************************************
+/*!
+* @brief Configure GPIO PC.6 as USART6 TX
+* @brief Configure GPIO PC.7 as USART6 RX
+*/
+void BSP_UartPin_init(void)
+{
+  volatile uint32_t temp;
+  const uint32_t PortBaseAddr = GPIO_PORT_C_BASE_ADDR;
+  uint32_t ThePin;
+
+  // *****************************************************************************
+  // TX - Port C, pin 6
+  // *****************************************************************************
+  ThePin = 6UL;
+
+  // *************************************
+  // BEGIN: SEE DATASHEET, TABLE 12
+  // *************************************
+
+  // Configure GPIO AFRL for AF8 - USART6 TX
+  temp  = REG32(GPIO_AFRL(PortBaseAddr));
+  temp &= ~(0x0FUL << (ThePin * 4UL));
+  temp |= (0x08UL << (ThePin * 4UL));  // output
+  REG32(GPIO_AFRL(PortBaseAddr)) = temp;
+
+  // Configure GPIO as Alternate Function
+  temp  = REG32(GPIO_MODER(PortBaseAddr));
+  temp &= ~(0x03UL << (ThePin * 2UL));
+  temp |= (0x02UL << (ThePin * 2UL));  // output
+  REG32(GPIO_MODER(PortBaseAddr)) = temp;
+
+  // *************************************
+  // END: SEE DATASHEET, TABLE 12
+  // *************************************
+
+  // Pin speed
+  temp  = REG32(GPIO_SPEEDR(PortBaseAddr));
+  temp &= ~(0x03UL << (ThePin * 2UL));
+  temp |= (0x03UL << (ThePin * 2UL));  // Very High Speed
+  REG32(GPIO_SPEEDR(PortBaseAddr)) = temp;
+
+  // IO Output type 
+  temp  = REG32(GPIO_OTYPER(PortBaseAddr));
+  temp &= ~(0x01UL << ThePin);
+  temp |=  (0x00UL << ThePin);  // Push Pull
+  REG32(GPIO_OTYPER(PortBaseAddr)) = temp;
+
+  // Pull Up / Pull Down 
+  temp  = REG32(GPIO_PUPDR(PortBaseAddr));
+  temp &= ~(0x03UL << (ThePin * 2UL));
+  temp |= (0x01UL << (ThePin * 2UL));  // Activate Pull Up
+  REG32(GPIO_PUPDR(PortBaseAddr)) = temp;
+
+  // *****************************************************************************
+  // RX - Port C, pin 7
+  // *****************************************************************************
+  ThePin = 7UL;
+
+  // *************************************
+  // BEGIN: SEE DATASHEET, TABLE 12
+  // *************************************
+  // Configure GPIO AFRL for AF8 - USART6 RX
+  temp  = REG32(GPIO_AFRL(PortBaseAddr));
+  temp &= ~(0x0FUL << (ThePin * 4UL));
+  temp |= (0x08UL << (ThePin * 4UL));  // output
+  REG32(GPIO_AFRL(PortBaseAddr)) = temp;
+
+  // Configure GPIO as Alternate Function
+  temp  = REG32(GPIO_MODER(PortBaseAddr));
+  temp &= ~(0x03UL << (ThePin * 2UL));
+  temp |= (0x02UL << (ThePin * 2UL));  // output
+  REG32(GPIO_MODER(PortBaseAddr)) = temp;
+  // *************************************
+  // END: SEE DATASHEET, TABLE 12
+  // *************************************
+
+  // Pin speed
+  temp  = REG32(GPIO_SPEEDR(PortBaseAddr));
+  temp &= ~(0x03UL << (ThePin * 2UL));
+  temp |= (0x03UL << (ThePin * 2UL));  // Very High Speed
+  REG32(GPIO_SPEEDR(PortBaseAddr)) = temp;
+
+  // IO Output type 
+  temp  = REG32(GPIO_OTYPER(PortBaseAddr));
+  temp &= ~(0x01UL << ThePin);
+  temp |=  (0x00UL << ThePin);  // Push Pull
+  REG32(GPIO_OTYPER(PortBaseAddr)) = temp;
+
+  // Pull Up / Pull Down 
+  temp  = REG32(GPIO_PUPDR(PortBaseAddr));
+  temp &= ~(0x03UL << (ThePin * 2UL));
+  temp |= (0x01UL << (ThePin * 2UL));  // Activate Pull Up
+  REG32(GPIO_PUPDR(PortBaseAddr)) = temp;
 }
 
 // **********************************************************
@@ -276,6 +413,7 @@ void BSP_LED_Toggle(BOARD_LED_ID Led)
 }
 
 
+// **********************************************************
 /**
   * @brief  Init a few GPIOs as outputs for probing / testing / debugging
   * @note Assumes PF6 - PF9 unused
@@ -297,6 +435,7 @@ static void BSP_Test_Outputs_Init(void)
 }
 
 
+// **********************************************************
 /**
   * @brief  Drive a test output high
   * @param  id: output to be driven (6-9)
@@ -305,10 +444,12 @@ static void BSP_Test_Outputs_Init(void)
   */
 void BSP_Test_Output_On(uint32_t id)
 {
-  if ((id < 6) || (id > 9)) { while (1); }
+  my_assert(id >= 6);
+  my_assert(id <= 9);
   BG_GPIO_WritePin(TEST_OUT_PORT, id, 1);
 }
 
+// **********************************************************
 /**
   * @brief  Drive a test output low
   * @param  id: output to be driven (6-9)
@@ -317,10 +458,12 @@ void BSP_Test_Output_On(uint32_t id)
   */
 void BSP_Test_Output_Off(uint32_t id)
 {
-  if ((id < 6) || (id > 9)) { while (1); }
+  my_assert(id >= 6);
+  my_assert(id <= 9);
   BG_GPIO_WritePin(TEST_OUT_PORT, id, 0);
 }
 
+// **********************************************************
 /**
   * @brief  Toggle a test output
   * @param  id: output to be driven (6-9)
@@ -329,8 +472,36 @@ void BSP_Test_Output_Off(uint32_t id)
   */
 void BSP_Test_Output_Toggle(uint32_t id)
 {
-  if ((id < 6) || (id > 9)) { while (1); }
+  my_assert(id >= 6);
+  my_assert(id <= 9);
   BG_GPIO_TogglePin(TEST_OUT_PORT, id);
 }
 
+// **********************************************************
+/**
+  * @brief  Initialize the board's push button
+  * @retval None
+  */
+void BSP_PB_Init(void)
+{
+  // PB is GPIOI.11
+  // Enable clock for GPIO port I
+  PB1_GPIO_PORT_CLK_ENABLE();
+
+  // Configure the Pushbutton GPIO
+  BG_GPIO_Init_Input(PB1_GPIO_PORT, PB1_PIN);
+}
+
+// **********************************************************
+/**
+  * @brief  Read the board's push button
+  * @retval 1 = pressed, 0 = not pressed
+  */
+uint32_t BSP_PB_Read(void)
+{
+  // PB is GPIOI.11
+  const uint32_t ThePin = 11UL;
+  // Button input goes LOW when pressed
+  return ((REG32(GPIO_IDR(PB1_GPIO_PORT)) >> ThePin) & 0x01UL);
+}
 

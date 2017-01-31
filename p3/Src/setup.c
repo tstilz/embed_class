@@ -504,6 +504,9 @@ void assert_failed(void)
   // RELEASE: Log, then reset
   while (1)
   {
+    //busywait_ms(250UL);
+    //BSP_LED_Toggle(LED1);
+    //BSP_LED_Toggle(LED2);
   }
 }
 
